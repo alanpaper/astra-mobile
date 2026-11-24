@@ -6,6 +6,10 @@ Astra 桌面端的手机客户端（开源）。扫描桌面端生成的二维�
 
 ## 功能
 
+- 原生 chrome + WebView 仅渲染对话消息流（页面嵌入模式 `embed=1`）
+- 左抽屉：历史会话搜索/列表 + 底部「用户」入口（设置 + 绑定信息）
+- 原生输入条：消息直发或入 PC 队列；队列面板支持同会话内排序/删除
+- 原生配置面板：思考开关/力度、模型来源（本地端口/提供者）、权限放权、本机名称
 - 扫码绑定 / 粘贴链接绑定 / `astra://bind?url=...` 深链
 - 多台桌面端凭证管理（iOS Keychain 按 `host:port` 隔离存储，可随时删除）
 - WebView 仅允许访问已绑定的桌面端，其余链接交给系统浏览器
@@ -32,7 +36,9 @@ open AstraMobile.xcodeproj
 
 ## Roadmap
 
-- [x] R4.1 iOS 壳（SwiftUI + AVFoundation 扫码 + Keychain）
+- [x] R4.1 iOS 壳脚手架（SwiftUI + AVFoundation 扫码 + Keychain）
+- [x] R4.1 原生 chrome（顶栏/抽屉/输入条/队列/配置 + 壳自持 WS）
+- [ ] 编译验证与真机联调（需 Xcode 环境）
 - [ ] R4.2 深链完善 + 多桌面凭证管理增强
 - [ ] Android 壳（Kotlin + CameraX/ML Kit + Keystore）—— 目录已占位，选型见 [android/README.md](android/README.md)
 

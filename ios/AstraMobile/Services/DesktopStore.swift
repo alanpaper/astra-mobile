@@ -24,12 +24,6 @@ final class DesktopStore: ObservableObject {
         desktops.first { $0.id == currentID }
     }
 
-    /// 入口页 URL：始终带 #secret，页面自行消费凭证（协议第 2 节）
-    func entryURL(of desktop: BoundDesktop) -> URL? {
-        guard let secret = KeychainStore.load(account: desktop.id) else { return nil }
-        return URL(string: "\(desktop.scheme)://\(desktop.host):\(desktop.port)/m#\(secret)")
-    }
-
     func bind(_ target: BindTarget) {
         KeychainStore.save(secret: target.secret, account: target.identifier)
         let now = Date()

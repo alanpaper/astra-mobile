@@ -26,6 +26,11 @@ http(s)://<host>:<port>/m#<SECRET>
   存入 sessionStorage/localStorage（`mbk_` 前缀），随后清理地址栏
 - 壳重新加载入口页时**始终带上 `#<secret>`**（从系统安全存储读取），
   页面会自行刷新凭证 —— 壳无需了解页面内部存储格式
+- **嵌入模式**（原生壳）：fragment 可附加参数（首段仍为 secret，旧二维码兼容）：
+  - `embed=1`：页面隐藏自带顶栏/输入区/抽屉/队列/配置，只渲染消息流，
+    这些 chrome 由壳原生提供
+  - `open=<sessionId|new>`：首连 hello 时打开指定会话（或进入新对话模式），
+    优先生效且阻止对 PC current 的自动收养
 
 ## 3. HTTP API（认证：`Authorization: Bearer <SECRET>`）
 
@@ -41,8 +46,21 @@ http(s)://<host>:<port>/m#<SECRET>
 ## 4. WebSocket
 
 - `GET /api/ws?ticket=<一次性票据>`
-- 桌面端把 Agent 运行事件镜像推给手机；手机可发送消息（进入桌面端队列）、
-  队列排序/删除等命令
+- 桌面端把 Agent 运行事件镜像推给**所有**连接（页面与壳各持一条互不冲突）
+- 事件（壳与页面共用）：`hello`（sessions/queue/config/current/scope）、
+  `view`、`queue`、`config`、`toast`、`run-settled`、`agent-event` 等
+- 命令：`send`（session_id 为 null 即发进新对话）、`queue_reorder`、
+  `queue_remove`、`set_model`、`set_thinking`、`set_auto_mode`、
+  审批/提问处置 —— 壳的输入条/队列/配置面板全部复用这些命令，协议层零新增
+- 页面行为规则（壳保持一致）：PC 切换会话仅收养停在默认态的设备；
+  新对话发送后按广播的 user_message 文本匹配收养新会话
+
+## 4.1 形态分工（嵌入模式）
+
+| 层 | 负责 |
+|---|---|
+| WebView 内页面 | 仅消息流渲染（markdown/工具卡/提问/审批弹卡） |
+| 壳原生 | 顶栏（标题/队列角标/新对话）、左抽屉（搜索+历史+用户入口）、输入条、队列面板、配置面板（思考/模型/放权/本机名称） |
 
 ## 5. Scope（服务端强制）
 

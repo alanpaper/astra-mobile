@@ -1,7 +1,7 @@
 import SwiftUI
 import WebKit
 
-/// 根视图：有选中的桌面端 → 对话页；否则 → 欢迎页（绑定入口）
+/// 根视图：有选中的桌面端 → 应用主壳；否则 → 欢迎页（绑定入口）
 struct RootView: View {
     @EnvironmentObject var store: DesktopStore
     @EnvironmentObject var appState: AppState
@@ -9,8 +9,9 @@ struct RootView: View {
 
     var body: some View {
         Group {
-            if let desktop = store.current, let entry = store.entryURL(of: desktop) {
-                WebShellView(desktop: desktop, entryURL: entry)
+            if let desktop = store.current,
+               KeychainStore.load(account: desktop.id) != nil {
+                DesktopRoot(desktop: desktop)
             } else {
                 WelcomeView()
             }
@@ -33,6 +34,24 @@ struct RootView: View {
 
 extension Notification.Name {
     static let bindFailed = Notification.Name("bindFailed")
+}
+
+/// 单个已绑定桌面的壳根：创建并持有该桌面的 ShellStore
+struct DesktopRoot: View {
+    @StateObject private var shell: ShellStore
+    private let desktop: BoundDesktop
+
+    init(desktop: BoundDesktop) {
+        self.desktop = desktop
+        let secret = KeychainStore.load(account: desktop.id) ?? ""
+        _shell = StateObject(wrappedValue: ShellStore(desktop: desktop, secret: secret))
+    }
+
+    var body: some View {
+        AppShellView()
+            .environmentObject(shell)
+            .id(desktop.id)
+    }
 }
 
 /// 扫码 sheet：识别成功即绑定并进入对话页
