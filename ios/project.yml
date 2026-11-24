@@ -1,0 +1,33 @@
+name: AstraMobile
+options:
+  bundleIdPrefix: io.astra.mobile
+  deploymentTarget:
+    iOS: "16.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    CODE_SIGN_STYLE: Automatic
+targets:
+  AstraMobile:
+    type: application
+    platform: iOS
+    sources:
+      - path: AstraMobile
+    info:
+      path: AstraMobile/Info.plist
+      properties:
+        CFBundleDisplayName: Astra
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        UILaunchScreen: {}
+        NSCameraUsageDescription: 用于扫描 Astra 桌面端的绑定二维码
+        NSAppTransportSecurity:
+          NSAllowsArbitraryLoads: true
+        CFBundleURLTypes:
+          - CFBundleURLName: io.astra.mobile.bind
+            CFBundleURLSchemes: [astra]
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
