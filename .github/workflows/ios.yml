@@ -1,0 +1,48 @@
+name: iOS build
+
+on:
+  push:
+    branches: [main]
+    paths: ['ios/**', '.github/workflows/ios.yml']
+  pull_request:
+    paths: ['ios/**', '.github/workflows/ios.yml']
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build (iOS Simulator)
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate Xcode project
+        run: |
+          brew install xcodegen
+          cd ios
+          xcodegen generate
+
+      - name: Build
+        run: |
+          cd ios
+          set -o pipefail
+          xcodebuild -project AstraMobile.xcodeproj \
+            -scheme AstraMobile \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build/DerivedData \
+            CODE_SIGNING_ALLOWED=NO \
+            build | tail -40
+
+      - name: Locate app bundle
+        id: app
+        run: |
+          path=$(find build/DerivedData/Build/Products -name 'AstraMobile.app' -path '*iphonesimulator*' | head -1)
+          echo "path=$path" >> "$GITHUB_OUTPUT"
+          test -n "$path"
+
+      - name: Upload simulator app
+        uses: actions/upload-artifact@v4
+        with:
+          name: AstraMobile-simulator
+          path: ${{ steps.app.outputs.path }}
